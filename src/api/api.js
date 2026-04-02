@@ -1,4 +1,7 @@
-const BASE = "/api";
+const BASE =
+  import.meta.env.VITE_API_URL
+    ? import.meta.env.VITE_API_URL + "/api"
+    : "/api";
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
@@ -30,7 +33,7 @@ export const clubsApi = {
   getById: (id) => request(`/clubs/${id}`),
   myClubs: () => request("/clubs/student-clubs"),
   facultyClubs: () => request("/clubs/my-clubs"),
-  clubMembers: (id) => request(`/clubs/${id}/members`), // ✅ new
+  clubMembers: (id) => request(`/clubs/${id}/members`),
 };
 
 export const clubRequestsApi = {
@@ -48,19 +51,12 @@ export const clubRequestsApi = {
 export const eventsApi = {
   myEvents: () => request("/events/my-events"),
   facultyEvents: () => request("/events/faculty-events"),
-  facultyFeedback: () => request("/events/faculty-feedback"),
-  getClubPastEvents: (clubId) => request(`/events/club/${clubId}/past`),
   getById: (id) => request(`/events/${id}`),
   create: (body) =>
     request("/events", { method: "POST", body: JSON.stringify(body) }),
   updateAttendance: (id, body) =>
     request(`/events/${id}/attendance`, {
       method: "PATCH",
-      body: JSON.stringify(body),
-    }),
-  submitFeedback: (id, body) =>
-    request(`/events/${id}/feedback`, {
-      method: "POST",
       body: JSON.stringify(body),
     }),
 };
@@ -83,6 +79,8 @@ export const adminApi = {
     }),
   events: (status) =>
     request(status ? `/admin/events?status=${status}` : "/admin/events"),
+  checkEventConflicts: (id) => request(`/admin/events/${id}/conflicts`),
+  getAllConflicts: () => request("/admin/events/conflicts"),
   updateEventStatus: (id, status, rejectionReason) =>
     request(`/admin/events/${id}`, {
       method: "PATCH",
